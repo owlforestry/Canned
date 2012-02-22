@@ -7,12 +7,15 @@
 //
 
 #import "OFViewController.h"
+#import "OFCanned.h"
 
 @interface OFViewController ()
 
 @end
 
 @implementation OFViewController
+@synthesize dataLabel;
+@synthesize timeLabel;
 
 - (void)viewDidLoad
 {
@@ -22,6 +25,8 @@
 
 - (void)viewDidUnload
 {
+    [self setDataLabel:nil];
+    [self setTimeLabel:nil];
     [super viewDidUnload];
     // Release any retained subviews of the main view.
 }
@@ -31,4 +36,14 @@
     return (interfaceOrientation != UIInterfaceOrientationPortraitUpsideDown);
 }
 
+- (IBAction)fetchData:(id)sender {
+    // Fetch example domains
+    [OFCanned setCan:@"iana"];
+    
+    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:@"http://www.iana.org/domains/example/"]];
+    [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
+        NSLog(@"Got reply.");
+        self.dataLabel.text = @"Got reply from iana.";
+    }];
+}
 @end

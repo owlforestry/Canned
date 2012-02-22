@@ -9,5 +9,8 @@
 #import <UIKit/UIKit.h>
 
 @interface OFViewController : UIViewController
+@property (strong, nonatomic) IBOutlet UILabel *dataLabel;
+@property (strong, nonatomic) IBOutlet UILabel *timeLabel;
+- (IBAction)fetchData:(id)sender;
 
 @end

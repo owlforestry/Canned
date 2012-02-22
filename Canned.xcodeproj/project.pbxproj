@@ -15,6 +15,7 @@
 		C0FDF9F914F569710036CD45 /* OFAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = C0FDF9F814F569710036CD45 /* OFAppDelegate.m */; };
 		C0FDF9FC14F569710036CD45 /* MainStoryboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C0FDF9FA14F569710036CD45 /* MainStoryboard.storyboard */; };
 		C0FDF9FF14F569710036CD45 /* OFViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = C0FDF9FE14F569710036CD45 /* OFViewController.m */; };
+		C0FDFA0814F56C040036CD45 /* OFCanned.m in Sources */ = {isa = PBXBuildFile; fileRef = C0FDFA0714F56C040036CD45 /* OFCanned.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -31,6 +32,8 @@
 		C0FDF9FB14F569710036CD45 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = en; path = en.lproj/MainStoryboard.storyboard; sourceTree = "<group>"; };
 		C0FDF9FD14F569710036CD45 /* OFViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OFViewController.h; sourceTree = "<group>"; };
 		C0FDF9FE14F569710036CD45 /* OFViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OFViewController.m; sourceTree = "<group>"; };
+		C0FDFA0614F56C040036CD45 /* OFCanned.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OFCanned.h; path = Canned/OFCanned.h; sourceTree = "<group>"; };
+		C0FDFA0714F56C040036CD45 /* OFCanned.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = OFCanned.m; path = Canned/OFCanned.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -50,7 +53,8 @@
 		C0FDF9D914F569710036CD45 = {
 			isa = PBXGroup;
 			children = (
-				C0FDF9EE14F569710036CD45 /* Canned */,
+				C0FDFA0514F56AD40036CD45 /* Canned */,
+				C0FDF9EE14F569710036CD45 /* CannedExample */,
 				C0FDF9E714F569710036CD45 /* Frameworks */,
 				C0FDF9E514F569710036CD45 /* Products */,
 			);
@@ -74,7 +78,7 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		C0FDF9EE14F569710036CD45 /* Canned */ = {
+		C0FDF9EE14F569710036CD45 /* CannedExample */ = {
 			isa = PBXGroup;
 			children = (
 				C0FDF9F714F569710036CD45 /* OFAppDelegate.h */,
@@ -84,7 +88,7 @@
 				C0FDF9FE14F569710036CD45 /* OFViewController.m */,
 				C0FDF9EF14F569710036CD45 /* Supporting Files */,
 			);
-			path = Canned;
+			path = CannedExample;
 			sourceTree = "<group>";
 		};
 		C0FDF9EF14F569710036CD45 /* Supporting Files */ = {
@@ -96,6 +100,15 @@
 				C0FDF9F614F569710036CD45 /* Canned-Prefix.pch */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		C0FDFA0514F56AD40036CD45 /* Canned */ = {
+			isa = PBXGroup;
+			children = (
+				C0FDFA0614F56C040036CD45 /* OFCanned.h */,
+				C0FDFA0714F56C040036CD45 /* OFCanned.m */,
+			);
+			name = Canned;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -165,6 +178,7 @@
 				C0FDF9F514F569710036CD45 /* main.m in Sources */,
 				C0FDF9F914F569710036CD45 /* OFAppDelegate.m in Sources */,
 				C0FDF9FF14F569710036CD45 /* OFViewController.m in Sources */,
+				C0FDFA0814F56C040036CD45 /* OFCanned.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -239,8 +253,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "Canned/Canned-Prefix.pch";
-				INFOPLIST_FILE = "Canned/Canned-Info.plist";
+				GCC_PREFIX_HEADER = "CannedExample/Canned-Prefix.pch";
+				INFOPLIST_FILE = "CannedExample/Canned-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -250,8 +264,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "Canned/Canned-Prefix.pch";
-				INFOPLIST_FILE = "Canned/Canned-Info.plist";
+				GCC_PREFIX_HEADER = "CannedExample/Canned-Prefix.pch";
+				INFOPLIST_FILE = "CannedExample/Canned-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};

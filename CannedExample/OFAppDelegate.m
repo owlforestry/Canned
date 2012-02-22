@@ -7,6 +7,7 @@
 //
 
 #import "OFAppDelegate.h"
+#import "OFCanned.h"
 
 @implementation OFAppDelegate
 
@@ -15,6 +16,8 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     // Override point for customization after application launch.
+    // Load OFCannedURLProtocol
+    [NSURLProtocol registerClass:[OFCanned class]];
     return YES;
 }
 							
