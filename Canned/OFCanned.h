@@ -11,28 +11,51 @@
 @interface OFCanned : NSURLProtocol
 
 typedef enum {
-    kMatchByDefault,
-    kMatchByURIAndMethod,
-} OFCanMatcher;
+    kOFMatchingWithURIAndMethod,
+    kOFMatchingWithBody,
+} OFRequestMatching;
 
-+ (NSString *)cansDirectory;
-+ (NSString *)pathForCan:(NSString *)can;
-
-/** Set currently active Can.
+/** @section Management */
+/** Starts canned responses for HTTP traffic.
+ After calling this method, by default all HTTP request will be canned.
+ If the request has not been canned before, it will be performed for real
+ and the response is canned.
+ If the canned response can be found, it will be returned immediatly without
+ ever connecting to real server.
  */
-+ (void)setCan:(NSString *)can;
++ (void)start;
 
-/**
- Starts capturing requests and if request can not be founded it is canned 
- for the future purposes.
- If the can can be found it is returned instead of the axtual request.
+/** Removes canned protocol from the URLProtocol stack.
+ Calling this method will stop canning responses and returns normal
+ functionality where all the request will be directed to the live servers.
  */
-+ (void)catchAndCan;
++ (void)stop;
 
-+ (void)catchWithMatcher:(OFCanMatcher)matcher;
-+ (void)catchWithMatcher:(OFCanMatcher)matcher toCan:(NSString *)can;
+/** @section Options */
 
-- (id)init;
-+ (id)sharedInstance;
+/** Sets the directory/path where canned responses will be cached.
+ */
++ (void)setCanStoreLocation:(NSString *)location;
+
+/** Initialize cans from given plist file.
+ When callig this method it will read all cans that has been defined in the
+ given plist file and initialize cans. This is useful when it is wanted to
+ bootstrap canned responses for the device testing or to the new testing
+ computer.
+ */
++ (void)initializeCansFromPath:(NSString *)path;
+
+#pragma mark - Can Management
+/** @section Can Management */
+
+/** Set currently active can to be used for canning responses.
+ */
++ (void)useCan:(NSString *)canName;
+
+/** Sets currently active can and matcher to use for finding previously
+ canned requests.
+ */
++ (void)useCan:(NSString *)canName withMatching:(OFRequestMatching)matching;
+
 
 @end

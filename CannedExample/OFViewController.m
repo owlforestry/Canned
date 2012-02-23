@@ -38,11 +38,13 @@
 
 - (IBAction)fetchData:(id)sender {
     // Fetch example domains
-    [OFCanned setCan:@"iana"];
+    [OFCanned useCan:@"iana" withMatching:kOFMatchingWithURIAndMethod];
     
     NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:@"http://www.iana.org/domains/example/"]];
     [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
-        NSLog(@"Got reply.");
+        NSLog(@"Headers: %@", ((NSHTTPURLResponse *)response).allHeaderFields);
+        NSLog(@"Data: %@", [NSString stringWithUTF8String:data.bytes]);
+        
         self.dataLabel.text = @"Got reply from iana.";
     }];
 }

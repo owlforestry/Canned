@@ -8,20 +8,39 @@
 
 #import "OFCanned.h"
 
+// Undocumented initializer obtained by class-dump - don't use this in production code destined for the App Store
+@interface NSHTTPURLResponse(UndocumentedInitializer)
+- (id)initWithURL:(NSURL*)URL statusCode:(NSInteger)statusCode headerFields:(NSDictionary*)headerFields requestTime:(double)requestTime;
+@end
+
 @interface OFCanned () <NSURLConnectionDelegate, NSURLConnectionDataDelegate>
 @property (nonatomic, readwrite, strong) NSURLRequest *request;
 @property (nonatomic, readwrite, strong) NSURLConnection *connection;
 @property (nonatomic, readwrite, strong) NSMutableData *data;
-@property (nonatomic, readwrite, strong) NSURLResponse *response;
+@property (nonatomic, readwrite, strong) NSHTTPURLResponse *response;
 
-@property (nonatomic, readwrite, strong) NSMutableDictionary *can;
-@property (nonatomic, readwrite, strong) NSString *canName;
-@property (nonatomic, readwrite) OFCanMatcher matcher;
++ (NSMutableDictionary *)settings;
+
++ (NSMutableDictionary *)can;
+
++ (NSString *)canName;
++ (void)setCanName:(NSString *)canName;
+
++ (NSString *)canStoreLocation;
++ (void)setCanStoreLocation:(NSString *)location;
+
++ (NSString *)canStorePath;
+
++ (OFRequestMatching)matching;
++ (void)setMatching:(OFRequestMatching)matching;
+
++ (void)saveCan;
++ (void)loadCan;
+
++ (NSString *)matcherForRequest:(NSURLRequest *)request withMatcher:(OFRequestMatching)matcher;
+- (NSString *)matcherForRequest:(NSURLRequest *)request;
 
 - (void)appendData:(NSData *)newData;
-- (NSString *)matcherFromRequest:(NSURLRequest *)request;
-- (void)loadCan;
-- (void)saveCan;
 
 @end
 
@@ -32,67 +51,145 @@
 @synthesize data = _data;
 @synthesize response = _response;
 
-@synthesize canName = _canName;
-@synthesize can = _can;
-@synthesize matcher = _matcher;
+#pragma mark - Static accessors
++ (NSMutableDictionary *)settings
+{
+    static NSMutableDictionary *settings = nil;
+    if (settings == nil) {
+        NSArray *_paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+        NSString *canStoreLocation = [[_paths objectAtIndex:0] stringByAppendingPathComponent:@"cans"];
+        settings = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                    [NSMutableDictionary dictionary], @"can",
+                    @"_default", @"canName",
+                    [NSNumber numberWithInt:kOFMatchingWithURIAndMethod], @"matching",
+                    canStoreLocation, @"canStoreLocation",
+                    nil];
+        [self.class loadCan];
+    }
+    
+    return settings;
+}
+
++ (NSMutableDictionary *)can
+{
+    return [self.class.settings objectForKey:@"can"];
+}
+
++ (NSString *)canName
+{
+    return [self.class.settings objectForKey:@"canName"];
+}
+
++ (void)setCanName:(NSString *)canName
+{
+    [self.class.settings setObject:canName forKey:@"canName"];
+    [self.class loadCan];
+}
+
++ (NSString *)canStoreLocation
+{
+    return [self.class.settings objectForKey:@"canStoreLocation"];
+}
+
++ (void)setCanStoreLocation:(NSString *)location
+{
+    [self.class.settings setObject:location forKey:@"canStoreLocation"];
+}
+
++ (OFRequestMatching)matching
+{
+    return [[self.class.settings objectForKey:@"matching"] intValue];
+}
+
++ (void)setMatching:(OFRequestMatching)matching
+{
+    [self.class.settings setObject:[NSNumber numberWithInt:matching] forKey:@"matching"];
+}
+
++ (NSString *)canStorePath
+{
+    return [[[self.class.settings objectForKey:@"canStoreLocation"] stringByAppendingPathComponent:[self.class.settings objectForKey:@"canName"]] stringByAppendingPathExtension:@"plist"];
+}
+
++ (void)saveCan
+{
+    NSLog(@"Saving can...");
+    NSLog(@"%@", self.class.can);
+    if (![[NSDictionary dictionaryWithDictionary:self.class.can] writeToFile:self.class.canStorePath atomically:YES]) {
+        NSLog(@"Failed to save to %@", self.class.canStorePath);
+        [[NSString stringWithString:@"File save works."] writeToFile:self.class.canStorePath atomically:YES];
+    } else {
+        NSLog(@"Saved.");
+    }
+}
+
++ (void)loadCan
+{
+    NSLog(@"Loading can %@...", self.class.canName);
+    // Try to load existing can
+    if ([[NSFileManager defaultManager] fileExistsAtPath:self.class.canStorePath]) {
+        NSLog(@"Reading can from %@", self.class.canStorePath);
+        NSMutableDictionary *can = [NSMutableDictionary dictionaryWithContentsOfFile:self.class.canStorePath];
+        [self.class.settings setObject:can forKey:@"can"];
+    }
+}
 
 #pragma mark - OFCanned Methods
-+ (NSString *)cansDirectory
++ (void)start
 {
-    NSArray *_paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
-    NSString *canPath = [[_paths objectAtIndex:0] stringByAppendingPathComponent:@"cans"];
-    return canPath;
+    NSLog(@"Registering OFCanned to URLProtocol stack...");
+    [NSURLProtocol registerClass:self.class];
 }
 
-+ (NSString *)pathForCan:(NSString *)can
++ (void)stop
 {
-    return [[[self.class cansDirectory] stringByAppendingPathComponent:can] stringByAppendingPathExtension:@"plist"];
+    NSLog(@"Deregistering OFCanned from URLProtocol stack");
+    [NSURLProtocol unregisterClass:self.class];
 }
 
-- (id)init
++ (void)initializeCansFromPath:(NSString *)path
 {
-    if (self = [super init]) {
-        self.can = [NSMutableDictionary dictionary];
-        self.canName = @"_default";
-        self.matcher = kMatchByDefault;
-        
-        [self loadCan];
-    }
-    return self;
-}
-
-+ (id)sharedInstance
-{
-    static dispatch_once_t onceToken;
-    __strong static id _sharedObject = nil;
     
-    dispatch_once(&onceToken, ^{
-        _sharedObject = [[self alloc] init];
-    });
-    
-    return _sharedObject;
 }
 
-+ (void)setCan:(NSString *)canName
++ (void)useCan:(NSString *)canName
 {
-    [[self sharedInstance] setCanName:canName];
+    [self useCan:canName withMatching:kOFMatchingWithURIAndMethod];
 }
 
-+ (void)catchAndCan
++ (void)useCan:(NSString *)canName withMatching:(OFRequestMatching)matching
 {
-    [NSURLProtocol registerClass:[self class]];
+    self.class.canName = canName;
+    self.class.matching = matching;
+//    [self.class.settings setObject:canName forKey:@"canName"];
+//    [self.class.settings setObject:[NSNumber numberWithInt:matching] forKey:@"matching"];
 }
 
-+ (void)catchWithMatcher:(OFCanMatcher)matcher
++ (NSString *)matcherForRequest:(NSURLRequest *)request withMatcher:(OFRequestMatching)matcher
 {
-    [self catchWithMatcher:matcher toCan:[[self sharedInstance] canName]];
+    switch (matcher) {
+        case kOFMatchingWithURIAndMethod:
+        {
+            return [NSString stringWithFormat:@"_%@_%@", request.HTTPMethod, request.URL.description];
+            break;
+        }
+        case kOFMatchingWithBody:
+        {
+            NSString *body = @"";
+            NSLog(@"HTTPBody class: %@", request.HTTPBody.class);
+            if (request.HTTPBody && ![request.HTTPBody isEqual:[NSNull null]]) {
+                body = [NSString stringWithUTF8String:[request.HTTPBody bytes]];
+            }
+            return [NSString stringWithFormat:@"%@:%@", [self.class matcherForRequest:request withMatcher:kOFMatchingWithURIAndMethod], body];
+        }
+        default:
+            break;
+    }    
 }
 
-+ (void)catchWithMatcher:(OFCanMatcher)matcher toCan:(NSString *)canName
+- (NSString *)matcherForRequest:(NSURLRequest *)request
 {
-    OFCanned *canned = [self sharedInstance];
-    canned.matcher = matcher;
-    canned.canName = canName;
+    return [self.class matcherForRequest:request withMatcher:[[self.class.settings objectForKey:@"matching"] intValue]];
 }
 
 #pragma mark - NSURLProtocol Methods
@@ -100,8 +197,7 @@
 {
     // We support HTTP only at the moment
     if ([[[request URL] scheme] isEqualToString:@"http"] &&
-        [request valueForHTTPHeaderField:@"X-Canned"] == nil) {
-        NSLog(@"Requesting canned response: %@", request);
+        [request valueForHTTPHeaderField:@"X-OFCanned"] == nil) {
         return YES;
     }
     return NO;
@@ -115,15 +211,11 @@
 - (id)initWithRequest:(NSURLRequest *)request cachedResponse:(NSCachedURLResponse *)cachedResponse client:(id<NSURLProtocolClient>)client
 {
     NSMutableURLRequest *lRequest = [request mutableCopy];
-    [lRequest setValue:@"0" forHTTPHeaderField:@"X-Canned"];
+    [lRequest setValue:@"0" forHTTPHeaderField:@"X-OFCanned"];
     
     self = [super initWithRequest:lRequest cachedResponse:cachedResponse client:client];
     if (self) {
         self.request = lRequest;
-        self.canName = [[self.class sharedInstance] canName];
-        self.can = [[self.class sharedInstance] can];
-        self.matcher = [[self.class sharedInstance] matcher];
-        [self loadCan];
     }
     
     return self;
@@ -131,22 +223,21 @@
 
 - (void)startLoading
 {
-    NSLog(@"Fetching data from %@", self.can);
-    
-    NSURLConnection *connection = [NSURLConnection connectionWithRequest:self.request delegate:self];
-    self.connection = connection;
+    // Try to find canned response
+    self.connection = [NSURLConnection connectionWithRequest:self.request delegate:self];
 }
 
 - (void)stopLoading
 {
-    [[self connection] cancel];
+    [self.connection cancel];
 }
 
-// NSURLConnection delegates (generally we pass these on to our client)
+#pragma mark - NSURLConnectionDelegate
+#pragma mark - NSURLConnectionDataDelegate
 
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
 {
-    [[self client] URLProtocol:self didLoadData:data];
+    [self.client URLProtocol:self didLoadData:data];
     [self appendData:data];
 }
 
@@ -157,39 +248,37 @@
     [self setData:nil];
 }
 
-- (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
+- (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSHTTPURLResponse *)response
 {
     [self setResponse:response];
-    [[self client] URLProtocol:self didReceiveResponse:response cacheStoragePolicy:NSURLCacheStorageNotAllowed];  // We cache ourselves.
+    [self.client URLProtocol:self didReceiveResponse:response cacheStoragePolicy:NSURLCacheStorageNotAllowed];
 }
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection
 {
-    [[self client] URLProtocolDidFinishLoading:self];
+    [self.client URLProtocolDidFinishLoading:self];
     
-    //    NSString *cachePath = [self cachePathForRequest:[self request]];
-    //    RNCachedData *cache = [RNCachedData new];
-    //    [cache setResponse:[self response]];
-    //    [cache setData:[self data]];
-    //    [NSKeyedArchiver archiveRootObject:cache toFile:cachePath];
-    
-//    NSLog(@"Got data: %@", [[NSString alloc] initWithData:self.data encoding:NSUTF8StringEncoding]);
-    NSString *matcher = [self matcherFromRequest:self.request];
-//    NSDictionary *_canStore = [NSDictionary dictionaryWithObjectsAndKeys:
-//                          matcher, @"matcher", self.data, @"data", nil];
-    NSDictionary *_canStore = [NSDictionary dictionaryWithObjectsAndKeys:
-                               self.request.HTTPMethod, @"method",
-                                [self data], @"data",
-                               nil];
-//    NSDictionary *__can = [NSDictionary dictionaryWithContentsOfFile:canPath];
-//    [__can setValue:_canStore forKey:matcher];
-//    [__can writeToFile:canPath atomically:NO];
-//    NSLog(@"Wrote can to %@", _canStore);
-    [self.can setValue:_canStore forKey:matcher];
-    [self saveCan];
-
-    [self setConnection:nil];
-    [self setData:nil];
+    // Store response to can
+    NSLog(@"Storing canned response to can %@ to path %@", self.class.canName, self.class.canStoreLocation);
+    // Can request
+    NSDictionary *_cannedRequest = [NSDictionary dictionaryWithObjectsAndKeys:
+                                    self.request.HTTPMethod, @"method",
+                                    self.request.URL.description, @"url",
+                                    self.request.HTTPBody, @"body",
+                                    self.request.allHTTPHeaderFields, @"headers",
+                                    nil];
+    NSDictionary *_cannedResponse = [NSDictionary dictionaryWithObjectsAndKeys:
+                                     [NSNumber numberWithInt:self.response.statusCode], @"statusCode",
+                                     self.response.allHeaderFields, @"headers",
+                                     [NSString stringWithUTF8String:[self.data bytes]], @"body",
+                                     nil];
+    NSDictionary *_canned = [NSDictionary dictionaryWithObjectsAndKeys:
+                             _cannedRequest, @"request",
+                             _cannedResponse, @"response",
+                             nil];
+    [self.class.can setObject:_canned forKey:[self matcherForRequest:self.request]];
+    [self.class saveCan];
+//    NSLog(@"Canned to %@:\n%@", self.canStorePath, _canned);
 }
 
 - (void)appendData:(NSData *)newData
@@ -204,41 +293,4 @@
     }
 }
 
-- (NSString *)matcherFromRequest:(NSURLRequest *)request
-{
-    switch (self.matcher) {
-        case kMatchByDefault:
-            return [NSString stringWithFormat:@"%@_%@", request.HTTPMethod, request.URL.description];
-            break;
-            
-        default:
-            return [NSString stringWithFormat:@"%u", request.hash];
-            break;
-    }
-}
-
-- (void)loadCan
-{
-    // Load can to memory if exists
-    if ([[NSFileManager defaultManager] fileExistsAtPath:[self.class cansDirectory] isDirectory:nil]) {
-        if ([[NSFileManager defaultManager] fileExistsAtPath:[self.class pathForCan:self.canName] isDirectory:NO]) {
-            self.can = [NSDictionary dictionaryWithContentsOfFile:[self.class pathForCan:self.canName]];
-        }
-    } else {
-        // Prepare directory
-        [[NSFileManager defaultManager] createDirectoryAtPath:[self.class cansDirectory] withIntermediateDirectories:YES attributes:nil error:nil];
-    }
-}
-
-- (void)saveCan
-{
-    // Load can to memory if exists
-    if (![[NSFileManager defaultManager] fileExistsAtPath:[self.class cansDirectory] isDirectory:nil]) {
-        // Prepare directory
-        [[NSFileManager defaultManager] createDirectoryAtPath:[self.class cansDirectory] withIntermediateDirectories:YES attributes:nil error:nil];
-    }
-//    [self.can writeToFile:[self.class pathForCan:[self.canName] atomically:NO];
-    [self.can writeToFile:[self.class pathForCan:self.canName] atomically:YES];
-    NSLog(@"Store can %@ to %@", self.can, [self.class pathForCan:self.canName]);
-}
 @end

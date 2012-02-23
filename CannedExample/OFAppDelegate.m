@@ -17,7 +17,8 @@
 {
     // Override point for customization after application launch.
     // Load OFCannedURLProtocol
-    [NSURLProtocol registerClass:[OFCanned class]];
+//    [NSURLProtocol registerClass:[OFCanned class]];
+    [OFCanned start];
     return YES;
 }
 							
