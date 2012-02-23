@@ -137,13 +137,13 @@
 #pragma mark - OFCanned Methods
 + (void)start
 {
-//    NSLog(@"Registering OFCanned to URLProtocol stack...");
+    NSLog(@"Registering OFCanned to URLProtocol stack...");
     [NSURLProtocol registerClass:self.class];
 }
 
 + (void)stop
 {
-//    NSLog(@"Deregistering OFCanned from URLProtocol stack");
+    NSLog(@"Deregistering OFCanned from URLProtocol stack");
     [NSURLProtocol unregisterClass:self.class];
 }
 
@@ -227,7 +227,7 @@
     NSDictionary *canned = [self.class.can objectForKey:[self matcherForRequest:self.request]];
     if (canned) {
         NSDictionary *cannedResponse = [canned objectForKey:@"response"];
-//        NSLog(@"Using canned response");
+        NSLog(@"Using canned response");
         NSString *body = [cannedResponse objectForKey:@"body"];
         NSData *bodyData = [body dataUsingEncoding:NSUTF8StringEncoding];
         NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:[cannedResponse objectForKey:@"url"] statusCode:[[cannedResponse objectForKey:@"statusCode"] intValue] headerFields:[cannedResponse objectForKey:@"headers"] requestTime:0.0];
