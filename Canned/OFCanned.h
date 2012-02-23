@@ -15,6 +15,9 @@ typedef enum {
     kMatchByURIAndMethod,
 } OFCanMatcher;
 
++ (NSString *)cansDirectory;
++ (NSString *)pathForCan:(NSString *)can;
+
 /** Set currently active Can.
  */
 + (void)setCan:(NSString *)can;
@@ -27,6 +30,7 @@ typedef enum {
 + (void)catchAndCan;
 
 + (void)catchWithMatcher:(OFCanMatcher)matcher;
++ (void)catchWithMatcher:(OFCanMatcher)matcher toCan:(NSString *)can;
 
 - (id)init;
 + (id)sharedInstance;

@@ -14,11 +14,14 @@
 @property (nonatomic, readwrite, strong) NSMutableData *data;
 @property (nonatomic, readwrite, strong) NSURLResponse *response;
 
-@property (nonatomic, readwrite, strong) NSString *can;
+@property (nonatomic, readwrite, strong) NSMutableDictionary *can;
+@property (nonatomic, readwrite, strong) NSString *canName;
 @property (nonatomic, readwrite) OFCanMatcher matcher;
 
 - (void)appendData:(NSData *)newData;
 - (NSString *)matcherFromRequest:(NSURLRequest *)request;
+- (void)loadCan;
+- (void)saveCan;
 
 @end
 
@@ -29,16 +32,31 @@
 @synthesize data = _data;
 @synthesize response = _response;
 
+@synthesize canName = _canName;
 @synthesize can = _can;
 @synthesize matcher = _matcher;
 
 #pragma mark - OFCanned Methods
++ (NSString *)cansDirectory
+{
+    NSArray *_paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+    NSString *canPath = [[_paths objectAtIndex:0] stringByAppendingPathComponent:@"cans"];
+    return canPath;
+}
+
++ (NSString *)pathForCan:(NSString *)can
+{
+    return [[[self.class cansDirectory] stringByAppendingPathComponent:can] stringByAppendingPathExtension:@"plist"];
+}
+
 - (id)init
 {
-    if (self = [super init])
-    {
-        self.can = @"_default";
+    if (self = [super init]) {
+        self.can = [NSMutableDictionary dictionary];
+        self.canName = @"_default";
         self.matcher = kMatchByDefault;
+        
+        [self loadCan];
     }
     return self;
 }
@@ -55,14 +73,26 @@
     return _sharedObject;
 }
 
-+ (void)setCan:(NSString *)can
++ (void)setCan:(NSString *)canName
 {
-    [[self sharedInstance] setCan:can];
+    [[self sharedInstance] setCanName:canName];
 }
 
 + (void)catchAndCan
 {
     [NSURLProtocol registerClass:[self class]];
+}
+
++ (void)catchWithMatcher:(OFCanMatcher)matcher
+{
+    [self catchWithMatcher:matcher toCan:[[self sharedInstance] canName]];
+}
+
++ (void)catchWithMatcher:(OFCanMatcher)matcher toCan:(NSString *)canName
+{
+    OFCanned *canned = [self sharedInstance];
+    canned.matcher = matcher;
+    canned.canName = canName;
 }
 
 #pragma mark - NSURLProtocol Methods
@@ -90,8 +120,10 @@
     self = [super initWithRequest:lRequest cachedResponse:cachedResponse client:client];
     if (self) {
         self.request = lRequest;
-        self.can = [[[self class] sharedInstance] can];
-        self.matcher = [[[self class] sharedInstance] matcher];
+        self.canName = [[self.class sharedInstance] canName];
+        self.can = [[self.class sharedInstance] can];
+        self.matcher = [[self.class sharedInstance] matcher];
+        [self loadCan];
     }
     
     return self;
@@ -149,12 +181,12 @@
                                self.request.HTTPMethod, @"method",
                                 [self data], @"data",
                                nil];
-    NSArray *_paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
-    NSString *canPath = [[[_paths objectAtIndex:0] stringByAppendingPathComponent:self.can] stringByAppendingPathExtension:@"plist"];
-    NSDictionary *__can = [NSDictionary dictionaryWithContentsOfFile:canPath];
-    [__can setValue:_canStore forKey:matcher];
-    [__can writeToFile:canPath atomically:NO];
-    NSLog(@"Wrote can to %@", _canStore);
+//    NSDictionary *__can = [NSDictionary dictionaryWithContentsOfFile:canPath];
+//    [__can setValue:_canStore forKey:matcher];
+//    [__can writeToFile:canPath atomically:NO];
+//    NSLog(@"Wrote can to %@", _canStore);
+    [self.can setValue:_canStore forKey:matcher];
+    [self saveCan];
 
     [self setConnection:nil];
     [self setData:nil];
@@ -183,5 +215,30 @@
             return [NSString stringWithFormat:@"%u", request.hash];
             break;
     }
+}
+
+- (void)loadCan
+{
+    // Load can to memory if exists
+    if ([[NSFileManager defaultManager] fileExistsAtPath:[self.class cansDirectory] isDirectory:nil]) {
+        if ([[NSFileManager defaultManager] fileExistsAtPath:[self.class pathForCan:self.canName] isDirectory:NO]) {
+            self.can = [NSDictionary dictionaryWithContentsOfFile:[self.class pathForCan:self.canName]];
+        }
+    } else {
+        // Prepare directory
+        [[NSFileManager defaultManager] createDirectoryAtPath:[self.class cansDirectory] withIntermediateDirectories:YES attributes:nil error:nil];
+    }
+}
+
+- (void)saveCan
+{
+    // Load can to memory if exists
+    if (![[NSFileManager defaultManager] fileExistsAtPath:[self.class cansDirectory] isDirectory:nil]) {
+        // Prepare directory
+        [[NSFileManager defaultManager] createDirectoryAtPath:[self.class cansDirectory] withIntermediateDirectories:YES attributes:nil error:nil];
+    }
+//    [self.can writeToFile:[self.class pathForCan:[self.canName] atomically:NO];
+    [self.can writeToFile:[self.class pathForCan:self.canName] atomically:YES];
+    NSLog(@"Store can %@ to %@", self.can, [self.class pathForCan:self.canName]);
 }
 @end
