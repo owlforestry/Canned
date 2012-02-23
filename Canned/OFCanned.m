@@ -113,22 +113,22 @@
 
 + (void)saveCan
 {
-    NSLog(@"Saving can...");
-    NSLog(@"%@", self.class.can);
+//    NSLog(@"Saving can...");
+//    NSLog(@"%@", self.class.can);
     if (![[NSDictionary dictionaryWithDictionary:self.class.can] writeToFile:self.class.canStorePath atomically:YES]) {
-        NSLog(@"Failed to save to %@", self.class.canStorePath);
+//        NSLog(@"Failed to save to %@", self.class.canStorePath);
         [[NSString stringWithString:@"File save works."] writeToFile:self.class.canStorePath atomically:YES];
     } else {
-        NSLog(@"Saved.");
+//        NSLog(@"Saved.");
     }
 }
 
 + (void)loadCan
 {
-    NSLog(@"Loading can %@...", self.class.canName);
+//    NSLog(@"Loading can %@...", self.class.canName);
     // Try to load existing can
     if ([[NSFileManager defaultManager] fileExistsAtPath:self.class.canStorePath]) {
-        NSLog(@"Reading can from %@", self.class.canStorePath);
+//        NSLog(@"Reading can from %@", self.class.canStorePath);
         NSMutableDictionary *can = [NSMutableDictionary dictionaryWithContentsOfFile:self.class.canStorePath];
         [self.class.settings setObject:can forKey:@"can"];
     }
@@ -137,13 +137,13 @@
 #pragma mark - OFCanned Methods
 + (void)start
 {
-    NSLog(@"Registering OFCanned to URLProtocol stack...");
+//    NSLog(@"Registering OFCanned to URLProtocol stack...");
     [NSURLProtocol registerClass:self.class];
 }
 
 + (void)stop
 {
-    NSLog(@"Deregistering OFCanned from URLProtocol stack");
+//    NSLog(@"Deregistering OFCanned from URLProtocol stack");
     [NSURLProtocol unregisterClass:self.class];
 }
 
@@ -176,7 +176,7 @@
         case kOFMatchingWithBody:
         {
             NSString *body = @"";
-            NSLog(@"HTTPBody class: %@", request.HTTPBody.class);
+//            NSLog(@"HTTPBody class: %@", request.HTTPBody.class);
             if (request.HTTPBody && ![request.HTTPBody isEqual:[NSNull null]]) {
                 body = [NSString stringWithUTF8String:[request.HTTPBody bytes]];
             }
@@ -224,7 +224,19 @@
 - (void)startLoading
 {
     // Try to find canned response
-    self.connection = [NSURLConnection connectionWithRequest:self.request delegate:self];
+    NSDictionary *canned = [self.class.can objectForKey:[self matcherForRequest:self.request]];
+    if (canned) {
+        NSDictionary *cannedResponse = [canned objectForKey:@"response"];
+//        NSLog(@"Using canned response");
+        NSString *body = [cannedResponse objectForKey:@"body"];
+        NSData *bodyData = [body dataUsingEncoding:NSUTF8StringEncoding];
+        NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:[cannedResponse objectForKey:@"url"] statusCode:[[cannedResponse objectForKey:@"statusCode"] intValue] headerFields:[cannedResponse objectForKey:@"headers"] requestTime:0.0];
+        [self.client URLProtocol:self didReceiveResponse:response cacheStoragePolicy:NSURLCacheStorageNotAllowed];
+        [self.client URLProtocol:self didLoadData:bodyData];
+        [self.client URLProtocolDidFinishLoading:self];
+    } else {
+        self.connection = [NSURLConnection connectionWithRequest:self.request delegate:self];
+    }
 }
 
 - (void)stopLoading
@@ -259,7 +271,7 @@
     [self.client URLProtocolDidFinishLoading:self];
     
     // Store response to can
-    NSLog(@"Storing canned response to can %@ to path %@", self.class.canName, self.class.canStoreLocation);
+//    NSLog(@"Storing canned response to can %@ to path %@", self.class.canName, self.class.canStoreLocation);
     // Can request
     NSDictionary *_cannedRequest = [NSDictionary dictionaryWithObjectsAndKeys:
                                     self.request.HTTPMethod, @"method",
