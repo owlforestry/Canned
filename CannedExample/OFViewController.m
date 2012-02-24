@@ -38,7 +38,7 @@
 
 - (IBAction)fetchData:(id)sender {
     // Fetch example domains
-    [OFCanned useCan:@"iana" withMatching:kOFMatchingWithURIAndMethod];
+    [OFCanned useCan:@"iana" withMatching:kOFMatchingWithURIAndMethod withContentsOfFile:[[NSBundle mainBundle] pathForResource:@"iana" ofType:@"plist"]];
     
     NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:@"http://www.iana.org/domains/example/"]];
     [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
