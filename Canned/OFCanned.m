@@ -159,10 +159,25 @@
 
 + (void)useCan:(NSString *)canName withMatching:(OFRequestMatching)matching
 {
+    [self useCan:canName withMatching:matching withContentsOfFile:nil];
+}
+
++ (void)useCan:(NSString *)canName withMatching:(OFRequestMatching)matching withContentsOfFile:(NSString *)file
+{
     self.class.canName = canName;
     self.class.matching = matching;
-//    [self.class.settings setObject:canName forKey:@"canName"];
-//    [self.class.settings setObject:[NSNumber numberWithInt:matching] forKey:@"matching"];
+    
+    if (file != nil && [self.class.can.allKeys count] == 0) {
+        if ([[NSFileManager defaultManager] fileExistsAtPath:file]) {
+            NSLog(@"Loading cans from file %@", file);
+            NSDictionary *preloadCan = [NSDictionary dictionaryWithContentsOfFile:file];
+            [preloadCan enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+                [self.class.can setObject:obj forKey:key];
+            }];
+        } else {
+            NSLog(@"Cannot find file %@ to get can contents!", file);
+        }
+    }
 }
 
 + (NSString *)matcherForRequest:(NSURLRequest *)request withMatcher:(OFRequestMatching)matcher
@@ -176,7 +191,6 @@
         case kOFMatchingWithBody:
         {
             NSString *body = @"";
-//            NSLog(@"HTTPBody class: %@", request.HTTPBody.class);
             if (request.HTTPBody && ![request.HTTPBody isEqual:[NSNull null]]) {
                 body = [NSString stringWithUTF8String:[request.HTTPBody bytes]];
             }

@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>_GET_http://www.iana.org/domains/example/</key>
+	<dict>
+		<key>request</key>
+		<dict>
+			<key>method</key>
+			<string>GET</string>
+			<key>url</key>
+			<string>http://www.iana.org/domains/example/</string>
+		</dict>
+		<key>response</key>
+		<dict>
+			<key>body</key>
+			<string>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+	&lt;title&gt;IANA &amp;mdash; Example domains&lt;/title&gt;
+	&lt;!-- start common-head --&gt;
+	&lt;meta http-equiv="Content-type" content="text/html; charset=utf-8" /&gt;
+	&lt;link rel="stylesheet" type="text/css" href="/_css/2008.1/reset-fonts-grids.css" /&gt;
+	&lt;link rel="stylesheet" type="text/css" media="screen" href="/_css/2008.1/screen.css" /&gt;
+	&lt;link rel="stylesheet" type="text/css" media="print" href="/_css/2008.1/print.css" /&gt;
+	&lt;link rel="shortcut icon" type="image/ico" href="/favicon.ico" /&gt;
+	&lt;script type="text/javascript" src="/_js/prototype.js"&gt;&lt;/script&gt;
+	&lt;script type="text/javascript" src="/_js/corners.js"&gt;&lt;/script&gt;
+	&lt;script type="text/javascript" src="/_js/common.js"&gt;&lt;/script&gt;
+	&lt;!-- end common-head --&gt;
+
+&lt;/head&gt;
+&lt;body&gt;
+	&lt;!-- start common-bodyhead --&gt;
+	&lt;div id="header-frame"&gt;
+	&lt;div id="header"&gt;
+	&lt;div id="header-logo"&gt;&lt;a href="/"&gt;&lt;img src="/_img/iana-logo-pageheader.png" alt="Homepage"/&gt;&lt;/a&gt;&lt;/div&gt;
+	&lt;div id="header-nav"&gt;
+	&lt;ul&gt;
+	&lt;li&gt;&lt;a href="/domains/"&gt;Domains&lt;/a&gt;&lt;/li&gt;
+	&lt;li&gt;&lt;a href="/numbers/"&gt;Numbers&lt;/a&gt;&lt;/li&gt;
+	&lt;li&gt;&lt;a href="/protocols/"&gt;Protocols&lt;/a&gt;&lt;/li&gt;
+	&lt;li&gt;&lt;a href="/about/"&gt;About IANA&lt;/a&gt;&lt;/li&gt;
+	&lt;/ul&gt;
+	&lt;/div&gt;
+	&lt;/div&gt;
+	&lt;/div&gt;
+
+	&lt;div id="body-container"&gt;
+	&lt;div id="body"&gt;
+	&lt;!-- end common-bodyhead --&gt;
+
+
+	&lt;h1&gt;Example Domains&lt;/h1&gt;
+
+	&lt;p&gt;As described in &lt;a href="/go/rfc2606"&gt;RFC 2606&lt;/a&gt;,
+	we maintain a number of domains such as EXAMPLE.COM and EXAMPLE.ORG
+	for documentation purposes. These domains may be used as illustrative
+	examples in documents without prior coordination with us. They are 
+	not available for registration.&lt;/p&gt;
+
+	 &lt;!-- start common-bodytail --&gt;
+	&lt;/div&gt;
+	&lt;/div&gt;
+
+	&lt;div id="footer-frame"&gt;
+	&lt;div id="footer"&gt;
+
+
+	&lt;table width=100%&gt;
+	&lt;tr&gt;
+		&lt;td id="iana-footer-first"&gt;&lt;b&gt;&lt;a href="/about/"&gt;About&lt;/a&gt;&lt;/b&gt;&lt;br/&gt;
+                &lt;a href="/about/presentations/"&gt;Presentations&lt;/a&gt;&lt;br/&gt;
+                &lt;a href="/about/performance/"&gt;Performance&lt;/a&gt;&lt;br/&gt;
+		&lt;a href="/reports/"&gt;Reports&lt;/a&gt;&lt;br/&gt;
+                &lt;/td&gt;
+
+		&lt;td&gt;&lt;b&gt;&lt;a href="/domains/"&gt;Domains&lt;/a&gt;&lt;/b&gt;&lt;br/&gt;
+		&lt;a href="/domains/root/"&gt;Root Zone&lt;/a&gt;&lt;br/&gt;
+		&lt;a href="/domains/int/"&gt;.INT&lt;/a&gt;&lt;br/&gt;
+		&lt;a href="/domains/arpa/"&gt;.ARPA&lt;/a&gt;&lt;br/&gt;
+		&lt;a href="/domains/idn-tables/"&gt;IDN Repository&lt;/a&gt;&lt;/td&gt;
+
+		&lt;td&gt;&lt;b&gt;&lt;a href="/protocols/"&gt;Protocols&lt;/a&gt;&lt;/b&gt;&lt;br/&gt;
+		&lt;br/&gt;
+		&lt;b&gt;&lt;a href="/numbers/"&gt;Number Resources&lt;/a&gt;&lt;/b&gt;&lt;br/&gt;
+		&lt;a href="/abuse/"&gt;Abuse Information&lt;/a&gt;&lt;/td&gt;
+
+		&lt;td id="iana-footer-icann"&gt;&lt;img src="/_img/icann-logo-micro.png"&gt;&lt;br/&gt;IANA is operated by the&lt;br/&gt;&lt;a href="http://www.icann.org/"&gt;Internet Corporation for Assigned Names and Numbers&lt;/a&gt;&lt;/td&gt;
+	&lt;/tr&gt;
+	&lt;/table&gt;
+
+&lt;div id="footer-beta-feedback"&gt;
+        &lt;p&gt;Please direct general feedback regarding IANA to &lt;a href="mailto:iana@iana.org?subject=General%20website%20feedback"&gt;iana@iana.org&lt;/a&gt;.&lt;/p&gt;
+        &lt;/div&gt;
+
+	&lt;/div&gt;
+	&lt;/div&gt;
+	&lt;!-- end common-bodytail --&gt;
+
+
+&lt;/body&gt;
+&lt;/html&gt;
+</string>
+			<key>headers</key>
+			<dict>
+				<key>Connection</key>
+				<string>close</string>
+				<key>Content-Encoding</key>
+				<string>gzip</string>
+				<key>Content-Length</key>
+				<string>1162</string>
+				<key>Content-Type</key>
+				<string>text/html; charset=UTF-8</string>
+				<key>Date</key>
+				<string>Fri, 24 Feb 2012 08:31:54 GMT</string>
+				<key>Last-Modified</key>
+				<string>Wed, 09 Feb 2011 17:13:15 GMT</string>
+				<key>Server</key>
+				<string>Apache/2.2.3 (CentOS)</string>
+				<key>Vary</key>
+				<string>Accept-Encoding</string>
+			</dict>
+			<key>statusCode</key>
+			<integer>200</integer>
+		</dict>
+	</dict>
+</dict>
+</plist>

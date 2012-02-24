@@ -57,5 +57,9 @@ typedef enum {
  */
 + (void)useCan:(NSString *)canName withMatching:(OFRequestMatching)matching;
 
+/** Sets currently active can and matcher to use. Also initializes
+ can from given file if can has not been used before.
+ */
++ (void)useCan:(NSString *)canName withMatching:(OFRequestMatching)matching withContentsOfFile:(NSString *)file;
 
 @end
